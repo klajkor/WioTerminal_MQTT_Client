@@ -17,6 +17,7 @@
 #include "wio_gpio.h"
 #include "wio_battery.h"
 
+uint32_t delay_counter = 0;
 
 char value[7] = "      "; //initial values
 char value2[7] = "      ";
@@ -40,20 +41,15 @@ static TimerHandle_t battery_status_update_timer;
 bool                 do_battery_status_update = false;
 
 // JSON document variables
-StaticJsonDocument<256> doc1;
-StaticJsonDocument<256> doc2;
-StaticJsonDocument<256> doc3;
+StaticJsonDocument<256> heartbeat_json;
+StaticJsonDocument<256> garage_sensor_json;
 
-int data1 = 0;  //data1 of MQTT json message
-int data2 = 0;  //data2 of MQTT json message
-int data3 = 0;  //data3 of MQTT json message
-int data4 = 0;  //data3 of MQTT json message
 int msg = 0;
 const char* timestamp = "dummy data";
 String recv_payload;
-const char* subtopic1 = "tele/ggbase_ttgo/HEARTBEAT";    
-const char* subtopic2 = "tele/ggbase_ttgo/garage02/SENSOR";
-const char* subtopic3 = "tele/test_sensor/SENSOR"; 
+const char* subtopic_heartbeat = "tele/ggbase_ttgo/HEARTBEAT";    
+const char* subtopic_sensor = "tele/ggbase_ttgo/garage02/SENSOR";
+
 
 // wio terminal wifi 
 WiFiClient wclient;
@@ -85,9 +81,12 @@ void setup_wifi(void)
 // mqtt message callback
 void mqtt_callback(char* topic, byte* payload, unsigned int length) 
 {
+    char temperature_str[8] = "100.0 C";
+    char humidity_str[5] = "100%";    
     const char* heartbeat_timestamp = "2020-01-01T11:22:33";
+    const char* garage_timestamp = "2020-01-01T11:22:33";
     float garage_temp = 0.0;
-    float garage_hum = 0.0;
+    uint8_t garage_hum = 0;
     //print out message topic and payload  
     Serial.print("New message from Subscribe topic: ");
     Serial.println(topic);
@@ -101,51 +100,32 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
 
     //check subscribe topic for message received and decode    
     
-    if (strcmp(topic, subtopic1)== 0) {  
+    if (strcmp(topic, subtopic_heartbeat)== 0) {  
         
+        deserializeJson(heartbeat_json, (const byte*)payload, length);
+        heartbeat_timestamp = heartbeat_json["Time"];
         Serial.print("TTGO Heartbeat:");
-        Serial.println(topic);
-        deserializeJson(doc1, (const byte*)payload, length);
-        heartbeat_timestamp = doc1["Time"];
         Serial.println(heartbeat_timestamp);
         wio_heartbeat_update(heartbeat_timestamp);
     }
-    //********************************//
-    //if message from topic subtopic2
-    //********************************//
-    if (strcmp(topic, subtopic2)== 0) {   
-        Serial.print("Payload from topic: ");
-        Serial.println(topic);
-        deserializeJson(doc2, (const byte*)payload, length);
-        garage_temp = doc2["SI7021"]["Temperature"];
-        garage_hum = doc2["SI7021"]["Humidity"];
+    
+    if (strcmp(topic, subtopic_sensor)== 0) {   
+        deserializeJson(garage_sensor_json, (const byte*)payload, length);
+        garage_timestamp = heartbeat_json["Time"];
+        garage_temp = garage_sensor_json["SI7021"]["Temperature"].as<float>();
+        garage_hum = garage_sensor_json["SI7021"]["Humidity"];
+        snprintf(temperature_str, 8, "%.1f C", garage_temp);
+        snprintf(humidity_str, 5, "%3d%%", garage_hum);
         
-        // itoa(data2,value2,10); 
-        Serial.print("Garage Temp=");
-        Serial.println(garage_temp);
-        Serial.print("Garage Humidity=");
-        Serial.println(garage_hum);
+        if ((garage_temp * garage_hum) != 0)
+        {
+            Serial.print(garage_timestamp);
+            Serial.print(" Garage Temp=");
+            Serial.print(temperature_str);
+            Serial.print(" Garage Humidity=");
+            Serial.println(humidity_str);
+        }
         
-    }
-        
-    //********************************//
-    //if message from topic subtopic3
-    //********************************//
-    if (strcmp(topic, subtopic3)== 0) {   
-        Serial.print("decode payload from topic ");
-        Serial.println(topic);
-        deserializeJson(doc3, (const byte*)payload, length);   //parse MQTT message
-        data3 = doc3["SI7021"]["Temperature"];
-        data4 = doc3["SI7021"]["Humidity"];
-        Serial.print("data3 Temp = ");
-        Serial.println(data3);
-        Serial.print("data4 Hum = ");
-        Serial.println(data4);
-        itoa(data1,value,10);  //convert data integer to character "value"
-        
-        timestamp = doc3["Time"];    //mqtt message timestamp
-        strcpy (stamp,timestamp);
-        stamp[19] = 0;   // terminate string after seconds         
     }
 }
 
@@ -167,32 +147,23 @@ void mqtt_reconnect(void)
             Serial.println("MQTT connected");
             // set up MQTT topic subscription
             Serial.println("subscribing to topics:");
-            Serial.println(subtopic1);
-            if (mqtt_client.subscribe(subtopic1))
+            Serial.println(subtopic_heartbeat);
+            if (mqtt_client.subscribe(subtopic_heartbeat))
             {
                 Serial.println(" - subscribed");
             }
             else
             {
                 Serial.println(" - Failed");
-            }Serial.print(subtopic2);
-            if (mqtt_client.subscribe(subtopic2))
+            }Serial.print(subtopic_sensor);
+            if (mqtt_client.subscribe(subtopic_sensor))
             {
                 Serial.println(" - subscribed");
             }
             else
             {
                 Serial.println(" - Failed");
-            }
-            Serial.print(subtopic3);
-            if (mqtt_client.subscribe(subtopic3))
-            {
-                Serial.println(" - subscribed");
-            }
-            else
-            {
-                Serial.println(" - Failed");
-            }      
+            }            
         } 
         else 
         {
@@ -237,6 +208,7 @@ void setup()
         xTimerStart(battery_status_update_timer, 0);
     }
     serial_println(MSG_CONNECTING_TO_WIFI);
+    delay_counter = millis();
     setup_wifi();
     mqtt_client.setServer(mqttServer, 1883);  //set mqtt server
     mqtt_client.setCallback(mqtt_callback);
@@ -248,23 +220,18 @@ void loop() {
         mqtt_reconnect();
     }
     if (msg == 1) 
-    {                         // check if new callback message
-        msg = 0;                             // reset message flag
-        /*
-        Serial.print("decoded timestamp = ");
-        Serial.println(stamp);
-        Serial.print("decoded data1 = ");
-        Serial.println(data1);
-        Serial.print("decoded data2 = ");
-        Serial.println(data2);    
-        */
+    {                         // check if new callback message        msg = 0;                             
     }
     if (do_battery_status_update)
     {
         do_battery_status_update = false;
         wio_battery_status_update();
     }
-    Serial.println("debug - in main loop");
-    delay(2000);
+    if (millis() > (delay_counter + DELAY_MAIN_LOOP_MILLISEC))
+    {
+        Serial.println("debug - in main loop");
+        delay_counter = millis();
+    }
+    delay(100);
     mqtt_client.loop();
 }
