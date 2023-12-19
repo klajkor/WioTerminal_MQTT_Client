@@ -81,7 +81,7 @@ void setup_wifi(void)
 // mqtt message callback
 void mqtt_callback(char* topic, byte* payload, unsigned int length) 
 {
-    char temperature_str[8] = "100.0 C";
+    char temperature_str[9] = "100.0  C";
     char humidity_str[5] = "100%";    
     const char* heartbeat_timestamp = "2020-01-01T11:22:33";
     const char* garage_timestamp = "2020-01-01T11:22:33";
@@ -114,7 +114,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
         garage_timestamp = heartbeat_json["Time"];
         garage_temp = garage_sensor_json["SI7021"]["Temperature"].as<float>();
         garage_hum = garage_sensor_json["SI7021"]["Humidity"];
-        snprintf(temperature_str, 8, "%.1f C", garage_temp);
+        snprintf(temperature_str, 9, "%.1f °C", garage_temp);
         snprintf(humidity_str, 5, "%3d%%", garage_hum);
         
         if ((garage_temp * garage_hum) != 0)

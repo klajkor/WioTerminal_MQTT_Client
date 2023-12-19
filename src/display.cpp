@@ -4,6 +4,7 @@ TFT_eSPI           tft;
 static TFT_eSprite wifi_status_display(&tft);
 static TFT_eSprite heartbeat_display(&tft);
 static TFT_eSprite battery_status_display(&tft);
+static TFT_eSprite temperature_status_display(&tft);
 
 display_fonts_s Display_Fonts;
 
@@ -15,7 +16,7 @@ void wio_display_init(Display_Rotation_e rotation_i)
     tft.begin();
     tft.init();
     tft.setRotation(rotation_i);
-    Display_Params.weight_height = 70;
+    Display_Params.temp_height = 70;
     Display_Params.timer_height = 70;
     Display_Params.heartbeat_height = 30;
     Display_Params.wifi_status_height = 30;
@@ -26,24 +27,24 @@ void wio_display_init(Display_Rotation_e rotation_i)
         Display_Params.width = 320;
         Display_Params.height = 240;
         Display_Params.title_height = 50;
-        Display_Params.weight_start_y = Display_Params.title_height;
-        Display_Params.weight_x_pos = Display_Params.width - 40;
-        Display_Params.timer_start_y = Display_Params.weight_start_y + Display_Params.weight_height;
+        Display_Params.temp_start_y = Display_Params.title_height;
+        Display_Params.temp_x_pos = Display_Params.width - 40;
+        Display_Params.timer_start_y = Display_Params.temp_start_y + Display_Params.temp_height;
         break;
     case Display_Rotation_Portrait:
         Display_Params.width = 240;
         Display_Params.height = 320;
         Display_Params.title_height = 60;
-        Display_Params.weight_start_y = Display_Params.title_height + 20;
-        Display_Params.weight_x_pos = Display_Params.width - 10;
-        Display_Params.timer_start_y = Display_Params.weight_start_y + Display_Params.weight_height;
+        Display_Params.temp_start_y = Display_Params.title_height + 20;
+        Display_Params.temp_x_pos = Display_Params.width - 10;
+        Display_Params.timer_start_y = Display_Params.temp_start_y + Display_Params.temp_height;
         break;
     }
     Display_Params.battery_status_start_y = Display_Params.height - Display_Params.battery_status_height - 1;
     Display_Params.wifi_status_start_y = Display_Params.battery_status_start_y - Display_Params.wifi_status_height;
     Display_Params.heartbeat_start_y = Display_Params.wifi_status_start_y - Display_Params.heartbeat_height;
     Display_Fonts.title_font = &FreeSansBold18pt7b;
-    Display_Fonts.weigth_font = &FreeSansBold18pt7b;
+    Display_Fonts.temp_font = &FreeSansBold18pt7b;
     Display_Fonts.timer_font = &FreeSansBold18pt7b;
     Display_Fonts.status_font = &FreeSans9pt7b;
     tft.fillScreen(TFT_BLACK);

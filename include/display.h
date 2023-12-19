@@ -15,7 +15,7 @@ typedef struct
 {
     const GFXfont *title_font;
     const GFXfont *status_font;
-    const GFXfont *weigth_font;
+    const GFXfont *temp_font;
     const GFXfont *timer_font;
 } display_fonts_s;
 
@@ -31,9 +31,9 @@ typedef struct
     int32_t heartbeat_start_y;
     int32_t wifi_status_height;
     int32_t wifi_status_start_y;
-    int32_t weight_height;
-    int32_t weight_start_y;
-    int32_t weight_x_pos;
+    int32_t temp_height;
+    int32_t temp_start_y;
+    int32_t temp_x_pos;
     int32_t timer_height;
     int32_t timer_start_y;
     int32_t battery_status_height;
