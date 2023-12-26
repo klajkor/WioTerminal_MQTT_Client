@@ -15,7 +15,7 @@ typedef struct
 {
     const GFXfont *title_font;
     const GFXfont *status_font;
-    const GFXfont *temp_font;
+    const GFXfont *temphum_font;
     const GFXfont *timer_font;
 } display_fonts_s;
 
@@ -31,9 +31,9 @@ typedef struct
     int32_t heartbeat_start_y;
     int32_t wifi_status_height;
     int32_t wifi_status_start_y;
-    int32_t temp_height;
-    int32_t temp_start_y;
-    int32_t temp_x_pos;
+    int32_t temphum_height;
+    int32_t temphum_start_y;
+    int32_t temphum_x_pos;
     int32_t timer_height;
     int32_t timer_start_y;
     int32_t battery_status_height;
@@ -53,6 +53,7 @@ extern Display_Rotation_e display_rotation;
 
 void wio_display_init(Display_Rotation_e rotation_i);
 void wio_set_background(void);
-void wio_wifi_status_update(const char *pStatusMessage);
+void wio_temphum_update(float pTemperature, uint8_t pHumidity, const char *pTimeStamp);
 void wio_heartbeat_update(const char *pStatusMessage);
+void wio_wifi_status_update(const char *pStatusMessage);
 void wio_battery_status_update(void);

@@ -24,8 +24,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="131.24115"
-     inkscape:cy="87.482726"
+     inkscape:cx="93.308874"
+     inkscape:cy="81.877045"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -60,10 +60,10 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#e6e6e6;stroke-width:0.389456"
+       style="fill:#e6e6e6;stroke-width:0.432063"
        id="rect33"
        width="63.5"
-       height="17.197916"
+       height="21.166666"
        x="0"
        y="15.875" />
     <rect
@@ -171,6 +171,17 @@
          id="tspan29"
          x="36.24585"
          y="25.080299"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.05556px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#0000ff;stroke-width:0.264583">100 %</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.05556px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#0000ff;stroke-width:0.264583">100%</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="-9.4464521"
+       y="17.969616"
+       id="text38"><tspan
+         sodipodi:role="line"
+         id="tspan36"
+         x="-9.4464521"
+         y="17.969616"
+         style="font-size:2.82222px;fill:#0000ff;stroke-width:0.264583">0,60</tspan></text>
   </g>
 </svg>

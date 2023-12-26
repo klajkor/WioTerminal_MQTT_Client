@@ -85,6 +85,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     char humidity_str[5] = "100%";    
     const char* heartbeat_timestamp = "2020-01-01T11:22:33";
     const char* garage_timestamp = "2020-01-01T11:22:33";
+    const char* temperature_unit = "X12";
     float garage_temp = 0.0;
     uint8_t garage_hum = 0;
     //print out message topic and payload  
@@ -111,19 +112,25 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     
     if (strcmp(topic, subtopic_sensor)== 0) {   
         deserializeJson(garage_sensor_json, (const byte*)payload, length);
-        garage_timestamp = heartbeat_json["Time"];
+        garage_timestamp = garage_sensor_json["Time"];
         garage_temp = garage_sensor_json["SI7021"]["Temperature"].as<float>();
         garage_hum = garage_sensor_json["SI7021"]["Humidity"];
+        temperature_unit = garage_sensor_json["TempUnit"];
         snprintf(temperature_str, 9, "%.1f °C", garage_temp);
         snprintf(humidity_str, 5, "%3d%%", garage_hum);
+        Serial.print(">> Temp Unit: ");
+        Serial.print(temperature_unit);
+        Serial.print(" L:");
+        Serial.println(strlen(temperature_unit));
         
-        if ((garage_temp * garage_hum) != 0)
+        if ((garage_hum) > 0)
         {
             Serial.print(garage_timestamp);
             Serial.print(" Garage Temp=");
             Serial.print(temperature_str);
             Serial.print(" Garage Humidity=");
             Serial.println(humidity_str);
+            wio_temphum_update(garage_temp, garage_hum, garage_timestamp);
         }
         
     }
